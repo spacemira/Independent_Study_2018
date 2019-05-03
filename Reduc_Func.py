@@ -55,6 +55,7 @@ def read_raw_fits(im, newimx, newimy):
     im_padded[0:newimx//2, 0:newimy//2] = im_all[2].data
     # southwest
     im_padded[0:newimx//2, newimy//2:newimy] = np.fliplr(im_all[1].data)
+    im_padded = np.fliplr(im_padded)
     return im_padded, im_header 
 
 def overscan_only_bias_correct(fits_im, newimx, newimy):
@@ -440,11 +441,14 @@ def flat_divide(filename, path_to_flat, cut):
     zeros = np.argwhere(t_flat==0)
     try:
         if not zeros:
-            masterFlat = t_flat
+            f_flat = np.fliplr(t_flat)
+            masterFlat = f_flat
     except(ValueError):
         print('The Flat had ZEROs. Replacing them with the median of the image.')
         t_flat[zeros]=np.median(t_flat)
-        masterFlat = t_flat
+        f_flat = np.fliplr(t_flat)
+        masterFlat = f_flat
+        
     
     superDivide = data/masterFlat
     shortname = filename.split(cut)
@@ -560,7 +564,7 @@ def close_im (filelist,cut,night,filt,**kwargs):
     loop = 0
     
     #cross correlation box dimensions
-    ymin = 3100
+    ymin = 2000
     ymax = 3900
     xmin = 2820
     xmax = 3820
